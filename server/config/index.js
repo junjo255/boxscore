@@ -7,7 +7,7 @@ const dev = {
   db: {
     host: process.env.DEV_DB_HOST || 'localhost',
     port: parseInt(process.env.DEV_DB_PORT) || 27017, // default mongo
-    name: process.env.DEV_DB_NAME || 'barstool-fullstack',
+    name: process.env.DEV_DB_NAME || 'FullStack App',
   },
 };
 
