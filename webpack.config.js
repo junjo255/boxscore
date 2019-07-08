@@ -1,57 +1,67 @@
 const webpack = require('webpack');
 const path = require('path');
+const src_path = path.resolve(__dirname, './client/src');
+const public_path = path.resolve(__dirname, './client/public');
 
-const config = {
-  entry: './src/index.js',
+module.exports = {
+  entry: [src_path + '/index.js'],
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    path: public_path,
+    filename: 'bundle.js',
   },
+  mode: 'development',
+  devtool: 'inline-source-map',
+  target: 'web',
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.jsx?/,
         use: 'babel-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
+        test: /\.scss$/,
         use: [
           'style-loader',
-          'css-loader'
-        ],
-        exclude: /\.module\.css$/
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
-        ],
-        include: /\.module\.css$/
-      },
-      {
-        test: /\.png$/,
-        use: [
           {
-            loader: 'url-loader',
+            loader: 'css-loader',
             options: {
-              mimetype: 'image/png'
-            }
-          }
-        ]
-      }
-    ]
+              url: false,
+              modules: true,
+              sourceMap: true,
+              localIdentName: '[local]__[hash:base64:5]',
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'sass-resources-loader',
+            options: {
+              resources: require(path.join(
+                process.cwd(),
+                'client/src/sass/utils.js'
+              )),
+            },
+          },
+        ],
+      },
+    ],
   },
   resolve: {
-    extensions: [
-      '.js',
-      '.jsx'
-    ]
+    extensions: ['.js', '.jsx', '.scss'],
+    modules: [src_path, 'node_modules'],
   },
   devServer: {
-    contentBase: './dist'
-  }
-}
-
-module.exports = config;
+    port: process.env.PORT || 8000,
+    compress: true,
+    contentBase: path.join(__dirname, './client/public'),
+    historyApiFallback: true,
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
+  },
+};

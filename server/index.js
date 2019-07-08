@@ -1,26 +1,24 @@
 const express = require('express');
-const app = express();
-const parser = require('body-parser');
-const path = require('path');
+const morgan = require('morgan');
 const cors = require('cors');
-const connect = require('../db/connect.js');
+const { web, db } = require('./config');
+const { dbConnect } = require('db/connection');
+const port = web.port;
+// INIT
+const app = express();
 
+// MIDDLEWARE
+app.use(morgan('dev'));
+app.use(express.json());
 app.use(cors());
-app.use(parser.json());
-app.use(
-    parser.urlencoded({
-        extended: true,
-    })
-)
 
-app.use(express.static(path.join(__dirname + '/../dist')));
+// ROUTES
+app.use('/api', require('./routes'));
 
+app.get('*', (_, res) => res.status(404).send({ message: 'Page not found.' }));
 
-
-let port = process.env.PORT || 3008;
-
-connect('mongodb://localhost:27017/boxscore')
-    .then(() => app.listen(port, () => {
-        console.log(`listening on port ${port}`);
-    }))
-    .catch(e => console.error(e))
+dbConnect(`mongodb://${db.host}:${db.port}`, db.name)
+  .then(() =>
+    app.listen(port, () => (console.log(`Listening on port: ${port}`), void 0))
+  )
+  .catch(err => (console.error(err), process.exit(1)));
