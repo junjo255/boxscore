@@ -1,6 +1,43 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App'
-import './styles.css'
+import React, { useEffect, useState } from 'react';
+import { render } from 'react-dom';
+import { Nav, NavBrand } from 'components/Navigation';
+import { Tabs } from 'components/tabs';
+import BoxScore from 'BoxScore';
+import { compose2, toLower } from 'utils/helpers';
+import getData from 'utils/api';
+import './sass/main';
 
-ReactDOM.render(<App />, document.getElementById("app")); 
+const App = () => {
+  const [leagueData, setLeagueData] = useState(null);
+  const [currentLeague, setLeague] = useState('mlb');
+  const lowerAndSetLeague = compose2(setLeague, toLower);
+
+  useEffect(() => {
+    getData(`/api/league/${currentLeague}`)
+      .then(({ data }) => setLeagueData(data))
+      .catch(e => console.error(e));
+  }, [currentLeague]);
+
+  return leagueData ? (
+    <div>
+      <Nav style={{ paddingLeft: '2.73em' }}>
+        <NavBrand>
+          <h1>Barstool</h1>
+        </NavBrand>
+        <Tabs inline={true} run={lowerAndSetLeague}>
+          <li title="MLB" />
+          <li title="NBA" />
+        </Tabs>
+      </Nav>
+      <main
+        style={{ padding: '1.33em', display: 'flex', justifyContent: 'center' }}
+      >
+        <BoxScore leagueData={leagueData} />
+      </main>
+    </div>
+  ) : (
+    ''
+  );
+};
+
+render(<App />, document.getElementById('app'));
