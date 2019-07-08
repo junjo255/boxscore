@@ -22,7 +22,7 @@ const App = () => {
     <div>
       <Nav style={{ paddingLeft: '2.73em' }}>
         <NavBrand>
-          <h1>Barstool</h1>
+          <h1>Boxscore</h1>
         </NavBrand>
         <Tabs inline={true} run={lowerAndSetLeague}>
           <li title="MLB" />
